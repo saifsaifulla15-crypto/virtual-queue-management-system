@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Business Management - Virtual Queue</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .grid-container { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .panel { padding: 15px; border: 1px solid #ccc; background: #fff; border-radius: 4px; }
+        .hidden { display: none; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f4f4f9; }
+    </style>
+</head>
+<body>
+    <div class="container" style="max-width: 1000px;">
+        <h1 class="text-center">Business Management</h1>
+        
+        <div style="margin-bottom: 20px;">
+            <a href="index.html" class="btn btn-secondary">← Back to Demo Session</a>
+        </div>
+
+        <div id="main-message" class="message"></div>
+
+        <div class="grid-container">
+            <!-- Left Panel: List and Registration -->
+            <div>
+                <div class="panel" style="margin-bottom: 20px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <h2>All Businesses</h2>
+                        <button class="btn" id="show-register-btn">Register Business</button>
+                    </div>
+                    <div id="business-list-loading">Loading businesses...</div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="business-table-body">
+                            <!-- Populated by JS -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Registration Form (Hidden by default) -->
+                <div id="register-panel" class="panel hidden">
+                    <h2>Register New Business</h2>
+                    <form id="registerForm">
+                        <div class="form-group">
+                            <label>Business Name *</label>
+                            <input type="text" id="reg-name" required minlength="2" maxlength="100">
+                        </div>
+                        <div class="form-group">
+                            <label>Address *</label>
+                            <input type="text" id="reg-address" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Phone * (10 digits)</label>
+                            <input type="text" id="reg-phone" required pattern="^[0-9]{10}$">
+                        </div>
+                        <div class="form-group">
+                            <label>Email *</label>
+                            <input type="email" id="reg-email" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Owner User * (Must have OWNER role)</label>
+                            <select id="reg-owner" required>
+                                <option value="">Loading users...</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn">Submit</button>
+                        <button type="button" class="btn btn-secondary" id="cancel-register-btn">Cancel</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Right Panel: Business Details & Staff -->
+            <div id="details-panel" class="panel hidden">
+                <h2 id="details-title">Business Details</h2>
+                <button type="button" class="btn btn-secondary" id="close-details-btn" style="float:right; margin-top:-40px;">Close</button>
+                
+                <form id="updateForm">
+                    <input type="hidden" id="upd-id">
+                    <div class="form-group">
+                        <label>Name</label>
+                        <input type="text" id="upd-name" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Address</label>
+                        <input type="text" id="upd-address" required>
+                    </div>
+                    <button type="submit" class="btn">Update Business</button>
+                </form>
+
+                <hr style="margin: 20px 0;">
+
+                <h3>Staff Management</h3>
+                <div id="staff-message" class="message"></div>
+                
+                <form id="addStaffForm" style="display: flex; gap: 10px; margin-bottom: 15px;">
+                    <select id="add-staff-select" required style="flex-grow: 1;">
+                        <option value="">Select a STAFF user...</option>
+                    </select>
+                    <button type="submit" class="btn">Add Staff</button>
+                </form>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Staff ID</th>
+                            <th>User ID</th>
+                            <th>Active</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="staff-table-body">
+                        <!-- Populated by JS -->
+                    </tbody>
+                </table>
+                <small style="color: #666; margin-top:5px; display:block;">* Note: The backend only lists Active staff.</small>
+            </div>
+        </div>
+    </div>
+
+    <!-- Load JavaScript Files -->
+    <script src="js/config.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/common.js"></script>
+    <script src="js/businesses.js"></script>
+</body>
+</html>

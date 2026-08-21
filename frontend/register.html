@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Registration - Virtual Queue</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="container">
+        <h1 class="text-center">Register New User</h1>
+        
+        <div style="margin-bottom: 20px;">
+            <a href="index.html" class="btn btn-secondary">← Back to Demo Session</a>
+        </div>
+
+        <div id="register-message" class="message"></div>
+
+        <form id="registerForm">
+            <div class="form-group">
+                <label for="name">Full Name *</label>
+                <!-- required prevents form submission if empty; minlength adds extra frontend check -->
+                <input type="text" id="name" name="name" required minlength="2" maxlength="100" placeholder="Enter your full name">
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email Address *</label>
+                <input type="email" id="email" name="email" required placeholder="example@domain.com">
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password * (min 8 chars)</label>
+                <input type="password" id="password" name="password" required minlength="8" placeholder="Create a strong password">
+            </div>
+
+            <div class="form-group">
+                <label for="confirmPassword">Confirm Password *</label>
+                <input type="password" id="confirmPassword" name="confirmPassword" required placeholder="Type password again">
+            </div>
+
+            <div class="form-group">
+                <label for="phone">Phone Number * (10 digits)</label>
+                <!-- pattern enforces exact match on the frontend to match the backend regex -->
+                <input type="text" id="phone" name="phone" required pattern="^[0-9]{10}$" placeholder="1234567890" title="Must be exactly 10 digits">
+            </div>
+
+            <div class="form-group">
+                <label for="role">Role *</label>
+                <!-- Values match the backend ROLE Enum exactly -->
+                <select id="role" name="role" required>
+                    <option value="CUSTOMER">Customer</option>
+                    <option value="BUSINESS_ADMIN">Business Admin</option>
+                    <option value="STAFF">Staff</option>
+                    <option value="OWNER">Owner</option>
+                </select>
+            </div>
+
+            <button type="submit" id="submitBtn" class="btn" style="width: 100%;">Register</button>
+        </form>
+    </div>
+
+    <!-- Load JavaScript Files -->
+    <script src="js/config.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/common.js"></script>
+    
+    <script>
+        // Getting HTML elements by their ID
+        const registerForm = document.getElementById('registerForm');
+        const submitBtn = document.getElementById('submitBtn');
+
+        // Adding an event listener to the form to handle submission
+        registerForm.addEventListener('submit', async function(event) {
+            // preventDefault() stops the browser from doing a full page refresh 
+            // when the form is submitted. This allows us to handle it with JavaScript instead.
+            event.preventDefault();
+
+            // Clear previous messages
+            hideMessage('register-message');
+
+            // Getting values from the input fields
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            const phone = document.getElementById('phone').value;
+            const role = document.getElementById('role').value;
+
+            // Simple frontend validation for password confirmation
+            if (password !== confirmPassword) {
+                showMessage('register-message', 'Passwords do not match.', 'error');
+                return;
+            }
+
+            // Create the JavaScript object representing the user data
+            const userData = {
+                name: name,
+                email: email,
+                password: password,
+                phone: phone,
+                role: role
+            };
+
+            try {
+                // Disable button to prevent double-clicks
+                submitBtn.disabled = true;
+                submitBtn.textContent = "Registering...";
+
+                // Call the api wrapper function which uses fetch()
+                await registerUser(userData);
+
+                // Show success message
+                showMessage('register-message', 'User registered successfully! Redirecting...', 'success');
+                
+                // Redirect to index.html after a short delay
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 1500);
+            } catch (error) {
+                // Display the backend error message directly to the user
+                showMessage('register-message', `Registration failed: ${error.message}`, 'error');
+                submitBtn.disabled = false;
+                submitBtn.textContent = "Register";
+            }
+        });
+    </script>
+</body>
+</html>

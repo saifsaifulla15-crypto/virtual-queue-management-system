@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Staff Dashboard - Virtual Queue</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .grid-container { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .panel { padding: 15px; border: 1px solid #ccc; background: #fff; border-radius: 4px; margin-bottom: 20px; }
+        .hidden { display: none; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f4f4f9; }
+    </style>
+</head>
+<body>
+    <div class="container" style="max-width: 1200px;">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h1>Staff Dashboard</h1>
+            <div>
+                <span id="user-info" style="margin-right: 15px; font-weight: bold;"></span>
+                <button id="btn-logout" class="btn btn-secondary">Change User</button>
+            </div>
+        </div>
+
+        <div id="main-message" class="message"></div>
+
+        <div class="grid-container">
+            <!-- Left: Assigned Queues -->
+            <div class="panel">
+                <h2>My Business Queues</h2>
+                <p>Business ID: <span id="my-biz-id">Loading...</span> | Staff ID: <span id="my-staff-id">Loading...</span></p>
+                <div id="queue-list-loading">Loading...</div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="queue-table-body">
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Right: Staff Control Panel -->
+            <div class="panel" id="control-panel" class="hidden">
+                <h2 id="cp-qname">Queue Control Panel</h2>
+                <div id="staff-message" class="message"></div>
+                <p>Strict Flow: Call Next → Start Service → Complete Service.</p>
+                
+                <div style="display:flex; gap:10px; margin-bottom: 15px; flex-wrap: wrap;">
+                    <button id="btn-call-next" class="btn">Call Next</button>
+                    <button id="btn-start" class="btn">Start Service</button>
+                    <button id="btn-skip" class="btn btn-secondary">Skip</button>
+                </div>
+
+                <div style="padding: 10px; background: #eee; border-radius:4px; margin-bottom: 15px;">
+                    <strong>Currently Calling/Serving:</strong> 
+                    <span id="active-staff-token" style="font-weight:bold; color:blue;">None</span>
+                    (<span id="active-staff-status"></span>)
+                </div>
+                
+                <form id="completeForm" style="display:flex; gap:10px;">
+                    <select id="staff-select" required style="flex-grow:1;">
+                        <option value="">-- Select Active Staff --</option>
+                    </select>
+                    <button type="submit" class="btn" style="background-color: #28a745;">Complete Service</button>
+                </form>
+                <small style="color: #777;">Only staff belonging to this business are shown above.</small>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/config.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/common.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/staff.js"></script>
+</body>
+</html>

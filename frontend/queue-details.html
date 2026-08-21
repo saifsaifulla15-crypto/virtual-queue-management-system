@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Queue Dashboard - Virtual Queue</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .grid-container { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .panel { padding: 15px; border: 1px solid #ccc; background: #fff; border-radius: 4px; margin-bottom: 20px; }
+        .hidden { display: none; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f4f4f9; }
+        .status-badge { padding: 4px 8px; border-radius: 4px; font-weight: bold; color: white; }
+        .status-open { background-color: #28a745; }
+        .status-paused { background-color: #ffc107; color: black; }
+        .status-closed { background-color: #dc3545; }
+        
+        .token-display {
+            font-size: 2em; text-align: center; font-weight: bold; margin: 15px 0; color: #0056b3;
+        }
+        .analytics-box {
+            display: inline-block; padding: 10px; background: #f8f9fa; border: 1px solid #ddd; border-radius: 4px; text-align: center; margin-right: 10px; min-width: 100px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container" style="max-width: 1200px;">
+        <h1 class="text-center">Queue Dashboard</h1>
+        
+        <div style="margin-bottom: 20px;">
+            <a href="queues.html" class="btn btn-secondary">← Back to All Queues</a>
+        </div>
+
+        <div id="main-message" class="message"></div>
+        <div id="loading-msg">Loading Queue Data...</div>
+
+        <div id="dashboard-content" class="hidden">
+            <!-- Top Panel: Analytics & Info -->
+            <div class="panel">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <h2 id="q-name">Queue Name</h2>
+                    <span id="q-status-badge" class="status-badge">STATUS</span>
+                </div>
+                <p><strong>Business ID:</strong> <span id="q-biz-id"></span> | <strong>Capacity:</strong> <span id="q-cap"></span> | <strong>Avg Service Time:</strong> <span id="q-avg-time"></span> mins</p>
+                
+                <hr>
+                <h3>Analytics Dashboard</h3>
+                <div id="analytics-container">
+                    <div class="analytics-box"><div>Total Served</div><h3 id="a-served">0</h3></div>
+                    <div class="analytics-box"><div>Cancelled/Skipped</div><h3 id="a-missed">0</h3></div>
+                    <div class="analytics-box"><div>Avg Wait</div><h3 id="a-wait">0m</h3></div>
+                </div>
+            </div>
+
+            <div class="grid-container">
+                
+                <!-- Left Column -->
+                <div>
+                    <!-- Customer Panel -->
+                    <div class="panel">
+                        <h2>Customer View</h2>
+                        <div id="cust-message" class="message"></div>
+                        
+                        <div id="join-section">
+                            <p>You can join this queue if it is open.</p>
+                            <button id="btn-join" class="btn">Join Queue (Uses Session User)</button>
+                        </div>
+                        
+                        <div id="my-token-section" class="hidden">
+                            <div class="token-display">Token: <span id="my-token-num"></span></div>
+                            <h3 style="text-align: center;" id="my-token-status"></h3>
+                            <p style="text-align: center;">People Ahead: <span id="my-people-ahead"></span> | Est. Wait: <span id="my-est-wait"></span> mins</p>
+                            <div style="text-align: center; margin-top: 15px;">
+                                <button id="btn-cancel-token" class="btn btn-secondary" style="background-color:#dc3545;">Cancel Token</button>
+                                <button id="btn-refresh-token" class="btn btn-secondary">Refresh Status</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Queue Management (Owner) -->
+                    <div class="panel">
+                        <h2>Manage Queue</h2>
+                        <div id="manage-message" class="message"></div>
+                        <form id="updateQueueForm">
+                            <div class="form-group">
+                                <label>Name</label>
+                                <input type="text" id="upd-name" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Max Capacity</label>
+                                <input type="number" id="upd-maxCap" required min="1">
+                            </div>
+                            <div class="form-group">
+                                <label>Default Service Time</label>
+                                <input type="number" id="upd-defTime" required min="1">
+                            </div>
+                            <button type="submit" class="btn btn-secondary">Update Info</button>
+                        </form>
+                        <hr style="margin:15px 0;">
+                        <form id="statusForm" style="display:flex; gap:10px;">
+                            <select id="upd-status" required>
+                                <option value="OPEN">OPEN</option>
+                                <option value="PAUSED">PAUSED</option>
+                                <option value="CLOSED">CLOSED</option>
+                            </select>
+                            <button type="submit" class="btn btn-secondary">Change Status</button>
+                        </form>
+                        <small style="display:block; margin-top:5px; color:#666;">Note: CLOSED status is final.</small>
+                    </div>
+                </div>
+
+                <!-- Right Column -->
+                <div>
+                    <!-- Staff Control Panel -->
+                    <div class="panel">
+                        <h2>Staff Control Panel</h2>
+                        <div id="staff-message" class="message"></div>
+                        <p>Strict Flow: Call Next → Start Service → Complete Service.</p>
+                        
+                        <div style="display:flex; gap:10px; margin-bottom: 15px; flex-wrap: wrap;">
+                            <button id="btn-call-next" class="btn">Call Next</button>
+                            <button id="btn-start" class="btn">Start Service</button>
+                            <button id="btn-skip" class="btn btn-secondary">Skip</button>
+                        </div>
+
+                        <div style="padding: 10px; background: #eee; border-radius:4px; margin-bottom: 15px;">
+                            <strong>Currently Calling/Serving:</strong> 
+                            <span id="active-staff-token" style="font-weight:bold; color:blue;">None</span>
+                            (<span id="active-staff-status"></span>)
+                        </div>
+                        
+                        <form id="completeForm" style="display:flex; gap:10px;">
+                            <select id="staff-select" required style="flex-grow:1;">
+                                <option value="">-- Select Active Staff --</option>
+                            </select>
+                            <button type="submit" class="btn" style="background-color: #28a745;">Complete Service</button>
+                        </form>
+                    </div>
+
+                    <!-- Service Records -->
+                    <div class="panel">
+                        <h2>Recent Service Records</h2>
+                        <div id="records-loading">Loading...</div>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Token</th>
+                                    <th>Staff ID</th>
+                                    <th>Wait (m)</th>
+                                    <th>Service (m)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="records-body">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <script src="js/config.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/common.js"></script>
+    <script src="js/queue-details.js"></script>
+</body>
+</html>
